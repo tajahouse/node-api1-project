@@ -1,25 +1,48 @@
 // implement your API here
-const express = require("express");
 const db = require("./data/db");
+const express = require("express");
+const { get } = require("express/lib/response");
+
 
 const server = express();
+server.use(express.json());
 
 const port = 3001
 
+//GET
+//---------------------------------------------------------------------------------------------------------------------------
+server.get('/', (req, res) => {
+    res.send('You`\ve got this Taja');
+});
+
+
     server.get("/api/users", (req, res)=>{
-        const users = db.find() 
-        users ? 
-        res.json(users) 
-            : res.status(500)
+    db.find()
+        .then(users => 
+            res.status(200).json(users))
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        message: 'The user information could not be retrieved.',
+                    });
+                });
     })
 
     server.get('/api/users/:id', (req, res)=>{
-        const user = db.findById();
-        user ?
-        res.json(user) 
-            : res.status(404)
+     db.findById(req.params.id)
+     .then(users =>
+        res.status(404).json(users))
+        .catch(err =>{
+            console.log(err);
+            res.status(404).json({
+                message: 'The user with the specified ID does not exist.'
+            })
+        })
+     
     })
 
+    //POST
+    //---------------------------------------------------------------------------------------------------------------------------  
     server.post('/api/users', (req, res)=>{
         if(!req.body.name && !req.body.bio){
             return res.statusCode(400).json({
@@ -33,6 +56,8 @@ const port = 3001
         res.status(201).json(newUser)
     })
 
+    //PUT
+    //---------------------------------------------------------------------------------------------------------------------------
     server.put('/api/users/:id', (req, res)=>{
         const user = db.findById();
         if(user){
@@ -48,6 +73,8 @@ const port = 3001
         }
     
     })
+    //DELETE
+    //---------------------------------------------------------------------------------------------------------------------------
     server.delete('/api/users/:id', (req, res)=>{
         const user = db.findById();
         if(user){
@@ -67,4 +94,3 @@ const port = 3001
 server.listen(port, ()=>{
     console.log(`Server listening on port ${port}`)
 })
-
