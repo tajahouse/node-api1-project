@@ -1,16 +1,13 @@
 // implement your API here
 const express = require("express");
-const datab = require("./data/db");
 const db = require("./data/db");
 
-const server = express((request, response)=>{
-    request.setHeader("Content-Type", "application/json")
-});
+const server = express();
 
 const port = 3001
 
     server.get("/api/users", (req, res)=>{
-        const users = datab.find() 
+        const users = db.find() 
         users ? 
         res.json(users) 
             : res.status(500)
@@ -18,7 +15,7 @@ const port = 3001
 
     server.get('/api/users/:id', (req, res)=>{
         const user = db.findById();
-    user ?
+        user ?
         res.json(user) 
             : res.status(404)
     })
