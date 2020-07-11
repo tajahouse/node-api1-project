@@ -5,9 +5,12 @@ const { get } = require("express/lib/response");
 
 
 const server = express();
+
+//Allows middleware to allow Express to parse JSON reqest bodies. 
 server.use(express.json());
 
-const port = 3001
+const port = 3000
+const hostname =  '127.0.0.1'
 
 //GET
 //---------------------------------------------------------------------------------------------------------------------------
@@ -27,7 +30,7 @@ server.get("/api/users", async (req, res)=>{
      })
 
     server.get('/api/users/:id', async (req, res)=>{
-        const users = await db.findById()
+        const users = await db.findById(req.params.id)
             users ?
             res.json(users)
             : res.status(404)
@@ -39,13 +42,13 @@ server.get("/api/users", async (req, res)=>{
 
     //POST
     //---------------------------------------------------------------------------------------------------------------------------  
-    server.post('/api/users', async (req, res)=>{
+    server.post("/api/users", (req, res)=>{
         if(!req.body.name && !req.body.bio){
-            return res.statusCode(400).json({
+            return res.status(400).json({
                 message: "Please add a name and bio for the user"
             })
         }
-        const newUser = await db.insert({
+        const newUser = db.insert({
         name: req.body.name,
         bio: req.body.bio
         })
@@ -55,9 +58,10 @@ server.get("/api/users", async (req, res)=>{
     //PUT
     //---------------------------------------------------------------------------------------------------------------------------
     server.put('/api/users/:id', async (req, res)=>{
-        const user = await db.findById();
+        const { id } = req.params;
+        const user = db.findById(id);
         if(user){
-            const updateUser = db.update(user.id, {
+            const updateUser = await db.update(id, {
                 name: req.body.name || user.name,
                 bio: req.body.bio || user.bio
             })
@@ -71,10 +75,11 @@ server.get("/api/users", async (req, res)=>{
     })
     //DELETE
     //---------------------------------------------------------------------------------------------------------------------------
-    server.delete('/api/users/:id', (req, res)=>{
-        const user = db.findById();
+    server.delete('/api/users/:id', async (req, res)=>{
+        const { id } = req.params
+        const user = db.findById(id);
         if(user){
-            const deleteUser = db.delelte(user.id, {
+            const deleteUser = await db.remove(id, {
                 name: req.body.name || user.name,
                 bio: req.body.bio || user.bio
             })
@@ -88,6 +93,6 @@ server.get("/api/users", async (req, res)=>{
     })
    
 
-server.listen(port, ()=>{
-    console.log(`Server listening on port ${port}`)
+server.listen(port, hostname, ()=>{
+    console.log(`Server listening on http://${hostname}:${port}`)
 })
