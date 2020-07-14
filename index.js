@@ -1,8 +1,6 @@
 // implement your API here
 const db = require("./data/db");
 const express = require("express");
-const { get } = require("express/lib/response");
-
 
 const server = express();
 
